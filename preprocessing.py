@@ -1,11 +1,12 @@
-from utils.preprocessing import fasta_to_csv
-import pandas as pd
-import os
+from utils.preprocessing import add_label, concat_data
 
-data_path = "data/raw/"
-domains = ["archaea", "bacteria", "eukaryota"]
+human_emb_path = "data/raw/emb_human.npy"
+human_data_path = "data/processed/human_data.pkl"
+nonhuman_emb_path = "data/raw/emb_nonhuman.npy"
+nonhuman_data_path = "data/processed/nonhuman_data.pkl"
 
-for domain in ["archaea", "bacteria", "eukaryota"]:
-    fasta_path = os.path.join(data_path, f"{domain}.fasta")
-    csv_path = os.path.join(data_path, f"{domain}.csv")
-    fasta_to_csv(fasta_path, csv_path, domain)
+concated_data = "data/processed/concated_data.pkl"
+
+add_label(human_emb_path, human_data_path, 1)
+add_label(nonhuman_emb_path, nonhuman_data_path, 0)
+concat_data(human_data_path, nonhuman_data_path, out_path=concated_data)

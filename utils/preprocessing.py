@@ -1,20 +1,19 @@
 from Bio import SeqIO
 import pandas as pd
+import numpy as np
 
 
-def fasta_to_csv(fasta_path: str, csv_path: str, domain: str) -> None:
-    """Open fasta file, create DataFrame and fill with organism name, host domain and protein sequences.
-    Also save result as *.csv file."""
-    with open(fasta_path, "r") as file:
-        csv_file = pd.DataFrame(columns=["virus", "host_domain", "protein"])
-        for record in SeqIO.parse(file, "fasta"):
-            csv_file = pd.concat(
-                [
-                    pd.DataFrame(
-                        [[record.id, domain, record.seq]], columns=csv_file.columns
-                    ),
-                    csv_file,
-                ],
-                ignore_index=True,
-            )
-        csv_file.to_csv(csv_path)
+def add_label(emb_path: str, data_path: str, value: int) -> None:
+    """Open file with embeddings saved as *.npy file, add target value (e.g. 1 or 0) and save it as *.csv file."""
+    embeddings = np.load(emb_path)
+    label = value * np.ones(embeddings.shape[0])
+    data = pd.DataFrame(data={"embedding": list(embeddings), "label": label})
+    data.to_pickle(data_path)
+
+
+def concat_data(*in_paths: str, out_path: str) -> None:
+    """Concat *.csv files into one with reseted index."""
+    frames = [pd.read_pickle(path) for path in in_paths]
+
+    concat_data = pd.concat(frames, ignore_index=True)
+    concat_data.to_pickle(out_path)
