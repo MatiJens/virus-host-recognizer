@@ -2,3 +2,5 @@ biopython
 numpy
 pandas
 scikit-learn
+torch
+transformers
