@@ -28,6 +28,7 @@ def get_protbert_embeddings(
     tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=False)
     base_model = BertModel.from_pretrained(model_name)
     if adapter_path:
+        print("Using pre-trained adapter model")
         model = PeftModel.from_pretrained(base_model, adapter_path)
     else:
         model = base_model
