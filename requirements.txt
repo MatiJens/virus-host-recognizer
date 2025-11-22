@@ -4,3 +4,6 @@ pandas
 scikit-learn
 torch
 transformers
+matplotlib
+peft
+pytorch_metric_learning

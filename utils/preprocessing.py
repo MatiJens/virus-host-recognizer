@@ -1,9 +1,9 @@
 from Bio import SeqIO
 import pandas as pd
 import numpy as np
-import re
 import os
 from typing import List, Tuple
+import random
 
 
 def add_metadata(embedding: np.ndarray, metadata: List[dict]) -> pd.DataFrame:
@@ -34,7 +34,7 @@ def concat_data(*embeddings: np.ndarray, out_path: str) -> None:
 def parse_fasta_with_groups(file_path: str, label: int) -> Tuple[List[str], List[dict]]:
     """Load FASTA and extracts the virus name from the header."""
     if not os.path.exists(file_path):
-        print(f"BŁĄD: Nie znaleziono pliku {file_path}")
+        print(f"Error: File not found: {file_path}")
         return [], []
 
     sequences = []
@@ -63,3 +63,20 @@ def parse_fasta_with_groups(file_path: str, label: int) -> Tuple[List[str], List
 
     print(f"Loaded {len(sequences)} sequences from {file_path}.'")
     return sequences, metadata
+
+
+def prepare_contrasted_learning_data(
+    pre_emb_human: List[str], pre_emb_nonhuman: List[str], train_limit_nh: int
+) -> Tuple[List[str], List[int]]:
+    human_labels = [1] * len(pre_emb_human)
+    nonhuman_selected = pre_emb_nonhuman[:]
+
+    if len(nonhuman_selected) > train_limit_nh:
+        random.shuffle(nonhuman_selected)
+        nonhuman_selected = nonhuman_selected[:train_limit_nh]
+    nonhuman_labels = [0] * len(nonhuman_selected)
+
+    all_seqs = pre_emb_human + nonhuman_selected
+    all_labels = human_labels + nonhuman_labels
+
+    return all_seqs, all_labels
