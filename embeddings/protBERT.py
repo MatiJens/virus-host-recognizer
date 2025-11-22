@@ -82,7 +82,7 @@ def contasted_learning(
     epochs: int,
     accumulation_steps: int,
     output_path: str,
-) -> peft.peft_model.PeftModel:
+) -> PeftModel:
     tokenizer = BertTokenizer.from_pretrained("Rostlab/prot_bert", do_lower_case=False)
 
     encoded_inputs = tokenizer(
