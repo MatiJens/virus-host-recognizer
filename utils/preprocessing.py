@@ -25,6 +25,9 @@ def add_metadata(embedding: np.ndarray, metadata: List[dict]) -> pd.DataFrame:
 def concat_data(*embeddings: np.ndarray, out_path: str) -> None:
     """Concat DataFrames into one with reseted index and save them as *.pkl file"""
     concat_data = pd.concat(embeddings, ignore_index=True)
+    folder_dir = os.path.dirname(out_path)
+    if folder_dir and not os.path.exists(folder_dir):
+        os.makedirs(folder_dir, exist_ok=True)
     concat_data.to_pickle(out_path)
 
 
