@@ -1,7 +1,8 @@
+=== Random Forest Results ===
 Confusion Matrix:
 [[827   0]
  [ 12  11]]
-===============================
+-------------------------------
               precision    recall  f1-score   support
 
            0       0.99      1.00      0.99       827
@@ -10,3 +11,18 @@ Confusion Matrix:
     accuracy                           0.99       850
    macro avg       0.99      0.74      0.82       850
 weighted avg       0.99      0.99      0.98       850
+
+
+=== XGBoost Results ===
+Confusion Matrix:
+[[820   7]
+ [ 10  13]]
+-------------------------------
+              precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99       827
+           1       0.65      0.57      0.60        23
+
+    accuracy                           0.98       850
+   macro avg       0.82      0.78      0.80       850
+weighted avg       0.98      0.98      0.98       850
