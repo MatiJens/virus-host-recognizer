@@ -1,9 +1,10 @@
 biopython
+ipykernel
 numpy
 pandas
 scikit-learn
+sentencepiece
 torch
 transformers
-matplotlib
-peft
-pytorch_metric_learning
+xgboost
+tqdm
