@@ -1,10 +1,9 @@
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
-from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 from xgboost import XGBClassifier
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.svm import SVC
 
 data_path = "data/processed/protbert.pkl"
 data = pd.read_pickle(data_path)
@@ -12,59 +11,47 @@ data = pd.read_pickle(data_path)
 X = np.stack(data["embedding"].values)
 y = data["label"]
 groups = data["virus_group"]
-
-splitter = GroupShuffleSplit(test_size=0.20, n_splits=1, random_state=42)
-train_idx, test_idx = next(splitter.split(X, y, groups))
-
-X_train, X_test = X[train_idx], X[test_idx]
-y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
 
-model_rf = RandomForestClassifier(
-    n_estimators=100,
-    class_weight="balanced",
-    n_jobs=-1,
-    random_state=42,
-)
+def param_grid_search(model, param_grid: dict, X_train, y_train) -> None:
+    grid_search = RandomizedSearchCV(
+        estimator=model, param_distributions=param_grid, cv=3, n_jobs=-1, verbose=3
+    )
+
+    grid_search.fit(X_train, y_train)
+    print(f"Best parameters: {grid_search.best_params_}")
+    print(f"Best score: {grid_search.best_score_}")
 
 
-model_rf.fit(X_train, y_train)
+print("RANDOM FOREST")
+rf_model = RandomForestClassifier()
+rf_grid = {
+    "max_depth": [3, 5, 7, 10],
+    "n_estimators": [100, 200, 300, 400, 500],
+    "max_features": [10, 20, 30, 40],
+    "min_samples_leaf": [1, 2, 4],
+}
+param_grid_search(rf_model, rf_grid, X_train, y_train)
 
-y_pred_rf = model_rf.predict(X_test)
 
-cm_rf = confusion_matrix(y_test, y_pred_rf)
-report_rf = classification_report(y_test, y_pred_rf)
+print("XGBOOST")
+xg_model = XGBClassifier(n_estimators=100, objective="binary:logistic", random_state=42)
+xg_grid = {
+    "max_depth": [3, 5, 7],
+    "min_child_weight": [1, 3, 5],
+    "subsample": [0.6, 0.8, 1.0],
+    "colsample_bytree": [0.6, 0.8, 1.0],
+    "learning_rate": [0.01, 0.1, 0.3],
+}
+param_grid_search(xg_model, xg_grid, X_train, y_train)
 
-model_xgb = XGBClassifier(
-    n_estimators=300,
-    max_depth=3,
-    learning_rate=0.1,
-    subsample=1.0,
-    colsample_bytree=0.8,
-    gamma=0.1,
-    scale_pos_weight=24.984,
-    n_jobs=-1,
-    random_state=42,
-    eval_metric="logloss",
-)
-model_xgb.fit(X_train, y_train)
 
-y_pred_xgb = model_xgb.predict(X_test)
-
-cm_xgb = confusion_matrix(y_test, y_pred_xgb)
-report_xgb = classification_report(y_test, y_pred_xgb)
-
-results_path = "normal_results.txt"
-
-with open(results_path, "w", encoding="utf-8") as f:
-    f.write("=== Random Forest Results ===\n")
-    f.write("Confusion Matrix:\n")
-    f.write(str(cm_rf))
-    f.write("\n-------------------------------\n")
-    f.write(report_rf)
-    f.write("\n\n")
-    f.write("=== XGBoost Results ===\n")
-    f.write("Confusion Matrix:\n")
-    f.write(str(cm_xgb))
-    f.write("\n-------------------------------\n")
-    f.write(report_xgb)
+print("SVM")
+svm_model = SVC(kernel="rbf", class_weight="balanced", random_state=42)
+svm_grid = {
+    "C": [0.1, 10, 1000],
+    "gamma": [1, 0.01, 0.0001],
+    "kernel": ["rbf"],
+}
+param_grid_search(svm_model, svm_grid, X_train, y_train)

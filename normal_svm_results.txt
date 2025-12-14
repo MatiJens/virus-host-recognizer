@@ -1,0 +1,13 @@
+=== RESULTS ===
+Confusion Matrix:
+[[4333  174]
+ [ 123   11]]
+-------------------------------
+              precision    recall  f1-score   support
+
+           0       0.97      0.96      0.97      4507
+           1       0.06      0.08      0.07       134
+
+    accuracy                           0.94      4641
+   macro avg       0.52      0.52      0.52      4641
+weighted avg       0.95      0.94      0.94      4641
